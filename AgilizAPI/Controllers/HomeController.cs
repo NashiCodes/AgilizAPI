@@ -10,7 +10,8 @@ namespace AgilizAPI.Controllers;
 [Route("/")]
 public class HomeController : ControllerBase
 {
-    public string Get {
+    public string Get
+    {
         [HttpGet] get => "Bem Vindo ao Backend do AgilizApp!";
     }
 }

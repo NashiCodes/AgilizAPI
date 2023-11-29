@@ -18,9 +18,9 @@ public class Establishment
     [MinLength(7)]
     public required string email { get; set; }
 
-    [Required][MaxLength(100)] public required string Name { get; set; }
+    [Required] [MaxLength(100)] public required string Name { get; set; }
 
-    [Required][MaxLength(100)] public required string Category { get; set; }
+    [Required] [MaxLength(100)] public required string Category { get; set; }
 
     [Required]
     [StringLength(8)]

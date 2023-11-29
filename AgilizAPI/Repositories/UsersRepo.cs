@@ -1,6 +1,5 @@
 ﻿#region
 
-using System.ComponentModel.Design;
 using AgilizAPI.Data;
 using AgilizAPI.Models;
 using Newtonsoft.Json.Linq;
@@ -58,10 +57,10 @@ public class UsersRepo(AgilizApiContext context) : IUsersRepo
 
     private async Task ValidateEmail(string email)
     {
-        var client = new HttpClient();
+        var client  = new HttpClient();
         var request = new HttpRequestMessage();
         request.Method     = HttpMethod.Get;
-        request.RequestUri = new($"https://mailcheck.p.rapidapi.com/?domain={email}");
+        request.RequestUri = new Uri($"https://mailcheck.p.rapidapi.com/?domain={email}");
         request.Headers.Add("X-RapidAPI-Host", "mailcheck.p.rapidapi.com");
         //Get rapidkey from user secrets
         var RapidKey = Environment.GetEnvironmentVariable("RapidKey");

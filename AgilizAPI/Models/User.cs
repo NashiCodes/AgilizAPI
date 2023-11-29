@@ -14,9 +14,9 @@ public class User
     [MinLength(7)]
     public required string email { get; set; }
 
-    [Required][MinLength(8)] public required string password { get; set; }
+    [Required] [MinLength(8)] public required string password { get; set; }
 
-    [Required][MaxLength(50)] public required string name { get; set; }
+    [Required] [MaxLength(50)] public required string name { get; set; }
 
     [Required] public required string phone { get; set; }
 
@@ -27,7 +27,7 @@ public class User
 
     public bool isEnterpreneur { get; set; } = false;
 
-    [StringLength(8)][MinLength(8)] public string address { get; set; } = "";
+    [StringLength(8)] [MinLength(8)] public string address { get; set; } = "";
 
     [StringLength(4)] public string addressNumber { get; set; } = "";
 }

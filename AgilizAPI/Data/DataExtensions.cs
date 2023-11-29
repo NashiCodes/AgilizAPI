@@ -11,8 +11,8 @@ public static class DataExtensions
 {
     public static async Task InitializeDb(this IServiceProvider services)
     {
-        using var scope = services.CreateScope();
-        var dbcontext = scope.ServiceProvider.GetRequiredService<AgilizApiContext>();
+        using var scope     = services.CreateScope();
+        var       dbcontext = scope.ServiceProvider.GetRequiredService<AgilizApiContext>();
         await dbcontext.Database.MigrateAsync();
     }
 

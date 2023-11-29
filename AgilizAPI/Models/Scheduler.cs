@@ -16,7 +16,7 @@ public class Scheduler
         Canceled
     }
 
-    [Key][Required] public required int Id { get; set; }
+    [Key] [Required] public required int Id { get; set; }
 
     public Status currStatus { get; set; } = Status.Waiting;
     [Required] public required string Date { get; set; }
