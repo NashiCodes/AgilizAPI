@@ -1,6 +1,10 @@
-﻿using AgilizAPI.Models;
+﻿#region
+
+using AgilizAPI.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+
+#endregion
 
 namespace AgilizAPI.Data.Configurations;
 

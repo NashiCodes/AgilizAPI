@@ -1,7 +1,18 @@
+#region
+
 using AgilizAPI.Data;
+
+#endregion
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRepositories(builder.Configuration);
+
+//get user secrets variables
+var configuration = builder.Configuration;
+var rapidkey      = configuration.GetValue<string>("RapidApiKey");
+
+// add user secrets variables to environment variables
+Environment.SetEnvironmentVariable("RapidKey", rapidkey);
 
 // Add services to the container.
 

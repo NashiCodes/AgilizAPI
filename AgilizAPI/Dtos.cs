@@ -1,5 +1,7 @@
-﻿namespace AgilizaAppAPI;
+﻿namespace AgilizAPI;
 
-public record userDto(string email, string password);
+public record UserDto(string email, string password);
 
-public record userToDto(string name, string phone, string address, string addressNumber);
+public record UserToDto(string name, string phone, string address, string addressNumber);
+
+public record EstablishmentDto(Guid id, string name, string category, string address, string addressNumber);

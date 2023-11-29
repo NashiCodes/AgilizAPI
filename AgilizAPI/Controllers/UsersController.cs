@@ -1,27 +1,28 @@
-﻿using AgilizaAppAPI;
+﻿#region
+
 using AgilizAPI.Models;
 using AgilizAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
+#endregion
+
 namespace AgilizAPI.Controllers;
 
-[Route("api/[controller]")]
+[Route("/[controller]")]
 [ApiController]
 public class UsersController(IUsersRepo repo) : ControllerBase
 {
-    private readonly IUsersRepo _repo = repo;
-
-    // GET: api/<UserController>/email=string&password=string
+    // GET: /<UserController>/email=string&password=string
     [HttpGet]
-    public IResult Get([FromQuery] userDto user)
+    public async Task<IResult> Get([FromQuery] UserDto user)
     {
-        return _repo.login(user);
+        return await repo.Login(user);
     }
 
-    // POST api/<UserController>
+    // POST /<UserController>
     [HttpPost]
     public async Task<IResult> Post([FromBody] User user)
     {
-        return await _repo.CadastrarUser(user);
+        return await repo.CadastrarUser(user);
     }
 }

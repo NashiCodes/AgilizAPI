@@ -1,6 +1,10 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿#region
 
-namespace AgilizaAppAPI.Models;
+using System.ComponentModel.DataAnnotations;
+
+#endregion
+
+namespace AgilizAPI.Models;
 
 public class Services
 {

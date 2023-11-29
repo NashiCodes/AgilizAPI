@@ -1,5 +1,8 @@
-﻿using AgilizaAppAPI;
+﻿#region
+
 using System.ComponentModel.DataAnnotations;
+
+#endregion
 
 namespace AgilizAPI.Models;
 
@@ -22,6 +25,8 @@ public class User
     [MinLength(11)]
     public required string cpf { get; set; }
 
+    public bool isEnterpreneur { get; set; } = false;
+
     [StringLength(8)][MinLength(8)] public string address { get; set; } = "";
 
     [StringLength(4)] public string addressNumber { get; set; } = "";
@@ -29,8 +34,8 @@ public class User
 
 public static class UserExtensions
 {
-    public static userToDto ToDto(this User user)
+    public static UserToDto ToDto(this User user)
     {
-        return new userToDto(user.name, user.phone, user.address, user.addressNumber);
+        return new UserToDto(user.name, user.phone, user.address, user.addressNumber);
     }
 }
