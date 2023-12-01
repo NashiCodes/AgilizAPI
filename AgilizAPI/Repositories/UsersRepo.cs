@@ -2,8 +2,6 @@
 
 using AgilizAPI.Data;
 using AgilizAPI.Models;
-using Newtonsoft.Json.Linq;
-using NuGet.ProjectModel;
 
 #endregion
 
@@ -11,11 +9,13 @@ namespace AgilizAPI.Repositories;
 
 public class UsersRepo(AgilizApiContext context) : IUsersRepo
 {
-    public async Task<IResult> CadastrarUser(User user)
+    public async Task<IResult> CadastrarUser(UserRegister requestUser)
     {
         try
         {
-            await Task.Run(() => ValidateEmail(user.email));
+            await IUsersRepo.ValidateEmail(requestUser.Email);
+            var user = requestUser.toUser();
+            user.CreatePasswordHash(requestUser.Password);
             await context.User.AddAsync(user);
             await context.SaveChangesAsync();
             return Results.Ok("Usuario Cadastrado com sucesso");
@@ -26,28 +26,17 @@ public class UsersRepo(AgilizApiContext context) : IUsersRepo
         }
     }
 
-    public async Task<IResult> Login(UserDto user)
+    public async Task<IResult> Login(UserLogin user)
     {
         try
         {
-            await ValidateEmail(user.email);
+            await IUsersRepo.ValidateEmail(user.Email);
+            var userDb = await context.User.FindAsync(user.Email);
 
-            var userDb = context.User.Find(user.email);
+            if (userDb == null) return Results.BadRequest("Usuario não cadastrado");
+            if (!userDb.VerifyPassword(user.Password)) return Results.BadRequest("Senha incorreta");
 
-            if (userDb != null)
-            {
-                if (userDb.password == user.password)
-                {
-                    if (userDb.isEnterpreneur)
-                        return LoadEstablishment(userDb);
-
-                    return Results.Ok(userDb.ToDto());
-                }
-
-                return Results.BadRequest("Senha incorreta");
-            }
-
-            return Results.BadRequest("Usuario não cadastrado");
+            return userDb.Role == UserClaims.CommonUser ? LoadEstablishment(userDb) : Results.Ok(userDb.ToDto(""));
         }
         catch (Exception e)
         {
@@ -55,35 +44,10 @@ public class UsersRepo(AgilizApiContext context) : IUsersRepo
         }
     }
 
-    private async Task ValidateEmail(string email)
-    {
-        var client  = new HttpClient();
-        var request = new HttpRequestMessage();
-        request.Method     = HttpMethod.Get;
-        request.RequestUri = new Uri($"https://mailcheck.p.rapidapi.com/?domain={email}");
-        request.Headers.Add("X-RapidAPI-Host", "mailcheck.p.rapidapi.com");
-        //Get rapidkey from user secrets
-        var RapidKey = Environment.GetEnvironmentVariable("RapidKey");
-        request.Headers.Add("X-RapidAPI-Key", RapidKey);
-
-        using var response = await client.SendAsync(request);
-        response.EnsureSuccessStatusCode();
-
-        var json  = JObject.Parse(await response.Content.ReadAsStringAsync());
-        var valid = json.GetValue<string>("valid");
-
-        if ("False".Equals(valid))
-        {
-            var reason    = json.GetValue<string>("reason");
-            var msg       = $"Email inválido \n Razão : \"{reason}\"";
-            var exception = new Exception(msg);
-            throw exception;
-        }
-    }
-
     private IResult LoadEstablishment(User dbUser)
     {
-        var estabishment = context.Establishment.Where(e => e.email == dbUser.email || e.Password == dbUser.password);
+        var estabishment =
+            context.Establishment.Where(e => e.Email.Equals(dbUser.Email) && e.VerifyPassword(dbUser.Password));
 
         return estabishment.Any()
                    ? Results.Ok(estabishment.First())

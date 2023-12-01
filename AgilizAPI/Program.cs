@@ -1,11 +1,14 @@
 #region
 
 using AgilizAPI.Data;
+using AgilizAPI.Security;
 
 #endregion
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRepositories(builder.Configuration);
+
+builder.Services.ConfigureJWT(builder.Configuration);
 
 //get user secrets variables
 var configuration = builder.Configuration;
@@ -32,7 +35,7 @@ if (app.Environment.IsDevelopment()) app.UseSwaggerUI();
 
 app.UseHttpsRedirection();
 
-app.UseAuthorization();
+app.UseJWT();
 
 app.MapControllers();
 

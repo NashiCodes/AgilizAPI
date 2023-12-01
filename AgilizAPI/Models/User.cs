@@ -1,6 +1,7 @@
 ﻿#region
 
-using System.ComponentModel.DataAnnotations;
+using System.Security.Cryptography;
+using System.Text;
 
 #endregion
 
@@ -8,34 +9,53 @@ namespace AgilizAPI.Models;
 
 public class User
 {
-    [Key]
-    [Required]
-    [MaxLength(50)]
-    [MinLength(7)]
-    public required string email { get; set; }
+    public string Email { get; set; } = string.Empty;
+    public byte[] Password { get; set; } = default!;
+    public byte[] PasswordSalt { get; set; } = default!;
+    public string UserName { get; set; } = string.Empty;
+    public string UserPhone { get; set; } = string.Empty;
+    public string UserCpf { get; set; } = string.Empty;
+    public UserClaims Role { get; set; } = UserClaims.CommonUser;
+    public string UserAddress { get; set; } = string.Empty;
+    public string addressNumber { get; set; } = string.Empty;
 
-    [Required] [MinLength(8)] public required string password { get; set; }
+    public void CreatePasswordHash(string password)
+    {
+        using HMACSHA512 hmac = new();
+        this.PasswordSalt = hmac.Key;
+        this.Password     = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+    }
 
-    [Required] [MaxLength(50)] public required string name { get; set; }
+    public bool VerifyPassword(string password)
+    {
+        using HMACSHA512 hmac         = new(this.PasswordSalt);
+        var              computedHash = hmac.ComputeHash(Encoding.UTF8.GetBytes(password));
+        return computedHash.SequenceEqual(this.Password);
+    }
+}
 
-    [Required] public required string phone { get; set; }
-
-    [Required]
-    [MaxLength(11)]
-    [MinLength(11)]
-    public required string cpf { get; set; }
-
-    public bool isEnterpreneur { get; set; } = false;
-
-    [StringLength(8)] [MinLength(8)] public string address { get; set; } = "";
-
-    [StringLength(4)] public string addressNumber { get; set; } = "";
+public enum UserClaims
+{
+    CommonUser,
+    Entrepreneur
 }
 
 public static class UserExtensions
 {
-    public static UserToDto ToDto(this User user)
+    public static User toUser(this UserRegister userRegister)
     {
-        return new UserToDto(user.name, user.phone, user.address, user.addressNumber);
+        return new User {
+            Email         = userRegister.Email,
+            UserName      = userRegister.UserName,
+            UserPhone     = userRegister.UserPhone,
+            UserCpf       = userRegister.UserCpf,
+            UserAddress   = userRegister.UserAddress,
+            addressNumber = userRegister.AddressNumber
+        };
+    }
+
+    public static UserToDto ToDto(this User user, string token)
+    {
+        return new UserToDto(user.UserName, user.UserPhone, user.UserAddress, user.addressNumber, token);
     }
 }

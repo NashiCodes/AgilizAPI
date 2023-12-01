@@ -1,6 +1,5 @@
 ﻿#region
 
-using AgilizAPI.Models;
 using AgilizAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,15 +13,15 @@ public class UsersController(IUsersRepo repo) : ControllerBase
 {
     // GET: /<UserController>/email=string&password=string
     [HttpGet]
-    public async Task<IResult> Get([FromQuery] UserDto user)
+    public async Task<IResult> Get([FromQuery] UserLogin requestUser)
     {
-        return await repo.Login(user);
+        return await repo.Login(requestUser);
     }
 
     // POST /<UserController>
     [HttpPost]
-    public async Task<IResult> Post([FromBody] User user)
+    public async Task<IResult> Post([FromBody] UserRegister requesUser)
     {
-        return await repo.CadastrarUser(user);
+        return await repo.CadastrarUser(requesUser);
     }
 }

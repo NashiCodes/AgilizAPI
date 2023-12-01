@@ -20,7 +20,7 @@ public class AgilizApiContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<User>().ToTable("Users").HasKey(u => u.email);
+        modelBuilder.Entity<User>().ToTable("Users").HasKey(u => u.Email);
         modelBuilder.Entity<Establishment>().ToTable("Establishments").HasKey(e => e.Id);
         modelBuilder.Entity<Services>().ToTable("Services").HasKey(s => s.Id);
         modelBuilder.Entity<Scheduler>().ToTable("Scheduler").HasKey(s => s.Id);
