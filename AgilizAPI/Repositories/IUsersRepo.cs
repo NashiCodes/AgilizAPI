@@ -1,5 +1,6 @@
 ﻿#region
 
+using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json.Linq;
 using NuGet.ProjectModel;
 
@@ -9,8 +10,8 @@ namespace AgilizAPI.Repositories;
 
 public interface IUsersRepo
 {
-    public Task<IResult> CadastrarUser(UserRegister requestUser);
-    public Task<IResult> Login(UserLogin            user);
+    public Task<IActionResult> CadastrarUser(UserRegister requestUser);
+    public Task<IActionResult> Login(UserLogin            user);
 
     protected static async Task ValidateEmail(string email)
     {
@@ -32,10 +33,9 @@ public interface IUsersRepo
 
         if ("False".Equals(valid))
         {
-            var       reason    = json.GetValue<string>("reason");
-            var       msg       = $"Email inválido \n Razão : \"{reason}\"";
-            Exception exception = new(msg);
-            throw exception;
+            var reason = json.GetValue<string>("reason");
+            var msg    = $"Email inválido \n Razão : \"{reason}\"";
+            throw new FormatException(msg);
         }
     }
 }

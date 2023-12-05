@@ -19,7 +19,8 @@ public static class DataExtensions
     public static IServiceCollection AddRepositories(this IServiceCollection services, IConfiguration config)
     {
         var connString = config.GetConnectionString("APIContext");
-        services.AddNpgsql<AgilizApiContext>(connString).AddScoped<IUsersRepo, UsersRepo>();
+        services.AddDbContext<AgilizApiContext>(options => options.UseNpgsql(connString)).AddScoped<UsersRepo>()
+            .AddScoped<EstabRepo>();
         return services;
     }
 }

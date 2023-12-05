@@ -7,20 +7,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AgilizAPI.Controllers;
 
-[Route("/[controller]")]
 [ApiController]
-public class UsersController(IUsersRepo repo) : ControllerBase
+[Route("/[controller]")]
+public class UsersController(UsersRepo repo) : ControllerBase
 {
     // GET: /<UserController>/email=string&password=string
     [HttpGet]
-    public async Task<IResult> Get([FromQuery] UserLogin requestUser)
+    public async Task<IActionResult> Get([FromQuery] UserLogin requestUser)
     {
         return await repo.Login(requestUser);
     }
 
     // POST /<UserController>
     [HttpPost]
-    public async Task<IResult> Post([FromBody] UserRegister requesUser)
+    public async Task<IActionResult> Post([FromBody] UserRegister requesUser)
     {
         return await repo.CadastrarUser(requesUser);
     }

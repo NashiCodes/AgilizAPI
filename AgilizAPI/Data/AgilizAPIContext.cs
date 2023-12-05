@@ -14,7 +14,7 @@ public class AgilizApiContext : DbContext
 
     public DbSet<User> User { get; set; } = default!;
     public DbSet<Establishment> Establishment { get; set; } = default!;
-    public DbSet<Services> Services { get; set; } = default!;
+    public DbSet<Service> Services { get; set; } = default!;
     public DbSet<Scheduler> Scheduler { get; set; } = default!;
 
 
@@ -22,7 +22,7 @@ public class AgilizApiContext : DbContext
     {
         modelBuilder.Entity<User>().ToTable("Users").HasKey(u => u.Email);
         modelBuilder.Entity<Establishment>().ToTable("Establishments").HasKey(e => e.Id);
-        modelBuilder.Entity<Services>().ToTable("Services").HasKey(s => s.Id);
+        modelBuilder.Entity<Service>().ToTable("Services").HasKey(s => s.Id);
         modelBuilder.Entity<Scheduler>().ToTable("Scheduler").HasKey(s => s.Id);
     }
 }

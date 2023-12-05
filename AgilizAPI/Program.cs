@@ -9,13 +9,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRepositories(builder.Configuration);
 
 builder.Services.ConfigureJWT(builder.Configuration);
+builder.Services.ConfigureClaims();
 
 //get user secrets variables
 var configuration = builder.Configuration;
-var rapidkey      = configuration.GetValue<string>("RapidApiKey");
-
 // add user secrets variables to environment variables
-Environment.SetEnvironmentVariable("RapidKey", rapidkey);
+Environment.SetEnvironmentVariable("RapidKey", configuration.GetValue<string>("RapidApiKey"));
+Environment.SetEnvironmentVariable("PRIVATE_KEY", configuration.GetValue<string>("PrivateKey"));
 
 // Add services to the container.
 

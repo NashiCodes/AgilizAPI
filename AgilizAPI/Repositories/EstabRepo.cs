@@ -9,17 +9,27 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AgilizAPI.Repositories;
 
-public class EstabRepo(AgilizApiContext context) : IEstabRepo
+public class EstabRepo(AgilizApiContext context)
 {
     public async Task<ActionResult<IEnumerable<EstablishmentDto>>> GetAll()
     {
-        return await context.Establishment.Select(e => e.ToDto()).ToListAsync();
+        return await context.Establishment.Select(e => e.ToDto("User")).ToListAsync();
+    }
+
+    public async Task<IActionResult> GetEstab(Guid id, string Role)
+    {
+        return new OkObjectResult(await context.Establishment.FindAsync(id));
     }
 
 
-    public Task<ActionResult<EstablishmentDto>> GetEstabServices(Guid id)
+    public async Task<IActionResult> GetEstabServices(Guid id)
     {
-        throw new NotImplementedException();
+        var estabServices = await context.Services.Where(s => s.IdEstablishment.Equals(id)).Select(s => s.ToDto())
+                                .ToListAsync();
+
+        return estabServices.Any()
+                   ? new OkObjectResult(estabServices)
+                   : new NotFoundObjectResult("Estabelecimento não encontrado");
     }
 
 
@@ -36,6 +46,12 @@ public class EstabRepo(AgilizApiContext context) : IEstabRepo
     {
         if (id != estab.Id) return new BadRequestResult();
 
+        var estabDb = await context.Establishment.FindAsync(id);
+        if (estabDb is null) return new NotFoundResult();
+
+        if (!estabDb.VerifyPassword(estab.Password))
+            return new BadRequestResult();
+
         context.Entry(estab).State = EntityState.Modified;
 
         try
@@ -46,10 +62,10 @@ public class EstabRepo(AgilizApiContext context) : IEstabRepo
         {
             if (!EstablishmentExists(id))
                 return new NotFoundResult();
-            throw;
+            return new BadRequestResult();
         }
 
-        return new NoContentResult();
+        return new OkObjectResult("Estabelecimento editado com sucesso");
     }
 
 
