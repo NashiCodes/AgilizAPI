@@ -14,7 +14,8 @@ public record UserRegister(string Email,       string Password,      string User
 public record UserToDto(string Name, string Phone, string UserAddress, string AddressNumber, string Token,
     List<Scheduler>            Scheduler);
 
-public record EstablishmentDto(Guid id, string name, string category, string address, string addressNumber,
-    string                          token);
+public record EstabDtoRaw(Guid id, string name, string category, string address, string addressNumber);
 
 public record ServicesDto(Guid Id, string Name, string Description, double Price, int Duration);
+
+public record EstablishmentDto(EstabDtoRaw Estab, List<ServicesDto> Services, string Token);

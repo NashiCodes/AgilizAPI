@@ -9,7 +9,7 @@ namespace AgilizAPI.Controllers;
 
 [ApiController]
 [Route("/[controller]")]
-public class UsersController(UsersRepo repo) : ControllerBase
+public class UsersController(IUsersRepo repo) : ControllerBase
 {
     // GET: /<UserController>/email=string&password=string
     [HttpGet]

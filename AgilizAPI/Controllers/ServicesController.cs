@@ -19,6 +19,13 @@ public class ServicesController(ServicesRepo repo) : ControllerBase
         return await repo.GetServiceOnly(id);
     }
 
+    // GET: api/Services/5
+    [HttpGet("{estabId}")]
+    public async Task<IActionResult> GetServicesEstb(Guid estabId)
+    {
+        return await repo.GetServicesEstab(estabId);
+    }
+
     // PUT: api/Services/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]

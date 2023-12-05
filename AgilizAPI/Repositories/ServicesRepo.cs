@@ -3,6 +3,7 @@
 using AgilizAPI.Data;
 using AgilizAPI.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 #endregion
 
@@ -17,6 +18,15 @@ public class ServicesRepo(AgilizApiContext context)
         return service is null
                    ? new NotFoundResult()
                    : new OkObjectResult(service.ToDto());
+    }
+
+    public async Task<IActionResult> GetServicesEstab(Guid estabId)
+    {
+        var services = await context.Services.Where(s => s.IdEstablishment.Equals(estabId)).ToListAsync();
+
+        return services.Any()
+                   ? new OkObjectResult(services)
+                   : new NotFoundObjectResult("Estabelecimento não encontrado");
     }
 
     public async Task<IActionResult> CreateService(Service service)

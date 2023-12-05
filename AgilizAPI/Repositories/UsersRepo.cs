@@ -48,7 +48,7 @@ public class UsersRepo(AgilizApiContext context) : IUsersRepo
             var estab = await context.Establishment
                             .Where(e => e.Email == user.Email && e.VerifyPassword(userDb.Password)).FirstAsync();
 
-            return await new EstabRepo(context).GetEstabServices(estab.Id);
+            return await new EstabRepo(context).loginEstab(estab.Id, userDb.GenerateToken());
         }
         catch (Exception e)
         {

@@ -15,17 +15,16 @@ namespace AgilizAPI.Controllers;
 public class EstablishmentsController(EstabRepo repo) : ControllerBase
 {
     // GET: /Establishments
-    [HttpGet]
-    [Route("all")]
-    [Authorize("User")]
-    public async Task<ActionResult<IEnumerable<EstablishmentDto>>> GetEstablishment()
+    [HttpGet("all/{local}")]
+    [Authorize(Policy = "User")]
+    public async Task<ActionResult<IEnumerable<EstablishmentDto>>> GetEstablishment([FromQuery] string local)
     {
-        return await repo.GetAll();
+        return await repo.GetAll(local);
     }
 
     // GET: /Establishments/5
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetEstablishment(Guid id)
+    public async Task<IActionResult> GetEstablishment([FromQuery] Guid id)
     {
         return await repo.GetEstabServices(id);
     }
@@ -33,7 +32,7 @@ public class EstablishmentsController(EstabRepo repo) : ControllerBase
     // PUT: /Establishments/5
     [HttpPut("{id}")]
     [Authorize(Policy = "Entrepreneur")]
-    public async Task<IActionResult> PutEstablishment(Guid id, Establishment establishment)
+    public async Task<IActionResult> PutEstablishment([FromQuery] Guid id, [FromBody] Establishment establishment)
     {
         return await repo.EditarEstab(id, establishment);
     }
@@ -41,7 +40,7 @@ public class EstablishmentsController(EstabRepo repo) : ControllerBase
     // POST: /Establishments
     [HttpPost]
     [Authorize(Policy = "Entrepreneur")]
-    public async Task<IActionResult> PostEstablishment(Establishment establishment)
+    public async Task<IActionResult> PostEstablishment([FromBody] Establishment establishment)
     {
         return await repo.CadastrarEstab(establishment);
     }

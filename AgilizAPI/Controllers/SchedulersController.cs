@@ -1,6 +1,5 @@
 ﻿#region
 
-using AgilizAPI.Data;
 using AgilizAPI.Models;
 using AgilizAPI.Repositories;
 using Microsoft.AspNetCore.Mvc;
@@ -11,25 +10,23 @@ namespace AgilizAPI.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class SchedulersController(AgilizApiContext context, SchedulerRepo repo) : ControllerBase
+public class SchedulersController(SchedulerRepo repo) : ControllerBase
 {
     // GET: api/Schedulers/5
     [HttpGet("{id}")]
-    public async Task<ActionResult<Scheduler>> GetScheduler(int id)
+    public async Task<ActionResult> GetScheduler(Guid id)
     {
-        var scheduler = await context.Scheduler.FindAsync(id);
-
-        if (scheduler == null) return NotFound();
-
-        return scheduler;
+        return await repo.GetScheduler(id) as ActionResult ?? new BadRequestObjectResult("Agendamento não encontrado");
     }
+
 
     // PUT: api/Schedulers/5
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPut("{id}")]
     public async Task<ActionResult> PutScheduler(Guid id, Scheduler scheduler)
     {
-        return (ActionResult)await repo.EditScheduler(id, scheduler);
+        return await repo.EditScheduler(id, scheduler) as ActionResult ??
+               new BadRequestObjectResult("Agendamento não encontrado");
     }
 
     // POST: api/Schedulers
@@ -43,8 +40,9 @@ public class SchedulersController(AgilizApiContext context, SchedulerRepo repo) 
 
     // DELETE: api/Schedulers/5
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteScheduler(Guid id)
+    public async Task<ActionResult> DeleteScheduler(Guid id)
     {
-        return await repo.DeleteScheduler(id);
+        return await repo.DeleteScheduler(id) as ActionResult ??
+               new BadRequestObjectResult("Agendamento não encontrado");
     }
 }
