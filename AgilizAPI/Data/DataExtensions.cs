@@ -13,14 +13,18 @@ public static class DataExtensions
     {
         using var scope     = services.CreateScope();
         var       dbcontext = scope.ServiceProvider.GetRequiredService<AgilizApiContext>();
-        await dbcontext.Database.MigrateAsync();
+        await dbcontext.Database.MigrateAsync().ConfigureAwait(false);
     }
 
     public static IServiceCollection AddRepositories(this IServiceCollection services, IConfiguration config)
     {
         var connString = config.GetConnectionString("APIContext");
-        services.AddDbContext<AgilizApiContext>(options => options.UseNpgsql(connString)).AddScoped<UsersRepo>()
-            .AddScoped<EstabRepo>();
+        services.AddDbContext<AgilizApiContext>(options => options.UseNpgsql(connString))
+            .AddScoped<IUsersRepo, UsersRepo>()
+            .AddScoped<EstabRepo>()
+            .AddScoped<SchedulerRepo>()
+            .AddScoped<ServicesRepo>()
+            .AddScoped<Populate>();
         return services;
     }
 }

@@ -1,5 +1,8 @@
 ﻿#region
 
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using AgilizAPI.Repositories;
 using Newtonsoft.Json.Linq;
 using NuGet.ProjectModel;
 
@@ -9,49 +12,54 @@ namespace AgilizAPI.Models;
 
 public class Establishment
 {
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Key]
     public Guid Id { get; set; }
-    public string Email { get; set; } = string.Empty;
-    public string Name { get; set; } = string.Empty;
-    public string Category { get; set; } = string.Empty;
-    public string Address { get; set; } = string.Empty;
-    public string AddressNumber { get; set; } = string.Empty;
-    public byte[] Password { get; set; } = default!;
+
+    [Required] public string Email { get; set; } = default!;
+    [Required] public string Name { get; set; } = default!;
+    [Required] public string Category { get; set; } = default!;
+    [Required] public string Address { get; set; } = default!;
+    [Required] public string AddressNumber { get; set; } = default!;
+    [Required] public byte[] Password { get; set; } = default!;
+
+    public JObject addressJson { get; set; } = default!;
+
+    public Establishment register(EstabRegister estab, byte[] pass)
+    {
+        this.Email         = estab.Email;
+        this.Name          = estab.Name;
+        this.Category      = estab.Category;
+        this.Address       = estab.Address;
+        this.AddressNumber = estab.AddressNumber;
+        this.Password      = pass;
+
+        return this;
+    }
 
     public bool VerifyPassword(IEnumerable<byte> password)
     {
         return password.SequenceEqual(this.Password);
     }
 
-    private static JObject viaCepJson(string cep)
+    public string getCity()
     {
-        var url = $"https://viacep.com.br/ws/{cep}/json/";
-
-        HttpClient client = new();
-        HttpRequestMessage request = new() {
-            Method     = HttpMethod.Get,
-            RequestUri = new Uri(url)
-        };
-
-        using var response = client.SendAsync(request).Result;
-        response.EnsureSuccessStatusCode();
-
-        return JObject.Parse(response.Content.ReadAsStringAsync().Result);
-    }
-
-    public static async Task<string> getCity(string cep)
-    {
-        var json = await Task.Run(() => viaCepJson(cep));
-        return json.GetValue<string>("localidade");
-    }
-
-    public async Task<string> getCity()
-    {
-        return await getCity(this.Address);
+        return this.addressJson.GetValue<string>("localidade");
     }
 
     public string getRua()
     {
-        return viaCepJson(this.Address).GetValue<string>("logradouro");
+        return this.addressJson.GetValue<string>("logradouro");
+    }
+
+    public string getBairro()
+    {
+        return this.addressJson.GetValue<string>("bairro");
+    }
+
+    public void loadJson()
+    {
+        this.addressJson = EstabRepo.viaCepJson(this.Address).Result;
     }
 }
 
@@ -59,12 +67,16 @@ public static class EstablishmentExtensions
 {
     public static EstablishmentDto ToDto(this Establishment establishment, string token)
     {
-        return new EstablishmentDto(establishment.ToDtoRaw(establishment.Address), new List<ServicesDto>(), token);
+        return new EstablishmentDto(establishment.ToDtoRaw(), new List<ServicesDto>(), token);
     }
 
-    public static EstabDtoRaw ToDtoRaw(this Establishment establishment, string Address)
+    public static EstabDtoRaw ToDtoRaw(this Establishment establishment)
     {
-        return new EstabDtoRaw(establishment.Id, establishment.Name, establishment.Category, Address,
-                               establishment.AddressNumber);
+        establishment.loadJson();
+
+        var location = new LocationDto(establishment.Address, establishment.getCity(), establishment.getRua(),
+                                       establishment.getBairro(), establishment.AddressNumber);
+
+        return new EstabDtoRaw(establishment.Id, establishment.Name, establishment.Category, location);
     }
 }

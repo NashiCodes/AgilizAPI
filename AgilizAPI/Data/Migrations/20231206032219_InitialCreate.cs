@@ -1,6 +1,5 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -33,13 +32,12 @@ namespace AgilizAPI.Data.Migrations
                 name: "Scheduler",
                 columns: table => new
                 {
-                    Id = table.Column<int>(type: "integer", nullable: false)
-                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Id = table.Column<Guid>(type: "uuid", nullable: false),
                     currStatus = table.Column<int>(type: "integer", nullable: false),
                     Date = table.Column<string>(type: "text", nullable: false),
                     Hour = table.Column<string>(type: "text", nullable: false),
-                    IdService = table.Column<int>(type: "integer", nullable: false),
-                    IdUser = table.Column<int>(type: "integer", nullable: false)
+                    IdService = table.Column<Guid>(type: "uuid", nullable: false),
+                    IdUser = table.Column<string>(type: "text", nullable: false)
                 },
                 constraints: table =>
                 {

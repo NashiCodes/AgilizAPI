@@ -18,7 +18,8 @@ public class UsersRepo(AgilizApiContext context) : IUsersRepo
     {
         try
         {
-            await ValidateEmail(requestUser.Email);
+            await ValidateProperties(requestUser);
+
             if (UserExists(requestUser.Email)) return new BadRequestObjectResult("Email já cadastrado");
             return await RegisterUser(requestUser);
         }
@@ -33,11 +34,11 @@ public class UsersRepo(AgilizApiContext context) : IUsersRepo
         try
         {
             await ValidateEmail(user.Email);
+
             var userDb = await context.User.FindAsync(user.Email);
 
             if (userDb == null) return new NotFoundObjectResult("Usuario não encontrado");
-            if (!userDb.VerifyPassword(user.Password))
-                Results.BadRequest("Senha incorreta");
+            if (!userDb.VerifyPassword(user.Password)) return new BadRequestObjectResult("Senha incorreta");
 
             if (userDb.Role != "Entrepreneur")
             {
@@ -45,19 +46,28 @@ public class UsersRepo(AgilizApiContext context) : IUsersRepo
                 return new OkObjectResult(userDb.ToDto(userDb.GenerateToken(), scheduler));
             }
 
-            var estab = await context.Establishment
-                            .Where(e => e.Email == user.Email && e.VerifyPassword(userDb.Password)).FirstAsync();
+            var existeEstab = await context.Establishment.Select(e => e.Email == user.Email).FirstOrDefaultAsync();
+            if (!existeEstab) return new NotFoundObjectResult("Estabelecimento não encontrado, ou Não cadastrado");
 
-            return await new EstabRepo(context).loginEstab(estab.Id, userDb.GenerateToken());
+            var estab = await context.Establishment.Where(e => e.Email == user.Email && e.VerifyPassword(userDb
+                                                                        .Password))
+                            .FirstOrDefaultAsync();
+
+            if (estab != null) return await new EstabRepo(context).loginEstab(estab.Id, userDb.GenerateToken());
         }
         catch (Exception e)
         {
             return new BadRequestObjectResult(e.Message);
         }
+
+        return new BadRequestObjectResult("Erro ao logar");
     }
 
     private async Task<IActionResult> RegisterUser(UserRegister requestUser)
     {
+        var userDb = context.User.Where(u => u.UserCpf == requestUser.UserCpf).FirstOrDefault();
+        if (userDb is not null) return new BadRequestObjectResult("CPF já cadastrado");
+
         var user = requestUser.toUser();
         user.CreatePasswordHash(requestUser.Password);
         await context.User.AddAsync(user);

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AgilizAPI.Controllers;
 
-[Route("api/[controller]")]
+[Route("a|[controller]")]
 [ApiController]
 public class ServicesController(ServicesRepo repo) : ControllerBase
 {
@@ -16,14 +16,14 @@ public class ServicesController(ServicesRepo repo) : ControllerBase
     [HttpGet("/only/{id}")]
     public async Task<IActionResult> GetServices(Guid id)
     {
-        return await repo.GetServiceOnly(id);
+        return await repo.GetServiceOnly(id).ConfigureAwait(false);
     }
 
     // GET: api/Services/5
     [HttpGet("{estabId}")]
     public async Task<IActionResult> GetServicesEstb(Guid estabId)
     {
-        return await repo.GetServicesEstab(estabId);
+        return await repo.GetServicesEstab(estabId).ConfigureAwait(false);
     }
 
     // PUT: api/Services/5
@@ -33,7 +33,7 @@ public class ServicesController(ServicesRepo repo) : ControllerBase
     {
         if (id != service.Id) return BadRequest();
 
-        return await repo.EditService(id, service);
+        return await repo.EditService(id, service).ConfigureAwait(false);
     }
 
     // POST: api/Services
@@ -41,13 +41,13 @@ public class ServicesController(ServicesRepo repo) : ControllerBase
     [HttpPost]
     public async Task<IActionResult> PostServices(Service service)
     {
-        return await repo.CreateService(service);
+        return await repo.CreateService(service).ConfigureAwait(false);
     }
 
     // DELETE: api/Services/5
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteServices(Guid id)
     {
-        return await repo.DeleteService(id);
+        return await repo.DeleteService(id).ConfigureAwait(false);
     }
 }

@@ -13,7 +13,7 @@ public class ServicesRepo(AgilizApiContext context)
 {
     public async Task<ActionResult> GetServiceOnly(Guid id)
     {
-        var service = await context.Services.FindAsync(id);
+        var service = await context.Services.FindAsync(id).ConfigureAwait(false);
 
         return service is null
                    ? new NotFoundResult()
@@ -22,7 +22,8 @@ public class ServicesRepo(AgilizApiContext context)
 
     public async Task<IActionResult> GetServicesEstab(Guid estabId)
     {
-        var services = await context.Services.Where(s => s.IdEstablishment.Equals(estabId)).ToListAsync();
+        var services = await context.Services.Where(s => s.IdEstablishment.Equals(estabId)).ToListAsync()
+                           .ConfigureAwait(false);
 
         return services.Any()
                    ? new OkObjectResult(services)
@@ -33,8 +34,8 @@ public class ServicesRepo(AgilizApiContext context)
     {
         try
         {
-            await context.Services.AddAsync(service);
-            await context.SaveChangesAsync();
+            await context.Services.AddAsync(service).ConfigureAwait(false);
+            await context.SaveChangesAsync().ConfigureAwait(false);
             return new OkObjectResult(service.ToDto());
         }
         catch (Exception e)
@@ -47,7 +48,7 @@ public class ServicesRepo(AgilizApiContext context)
     {
         try
         {
-            var serviceDb = await context.Services.FindAsync(id);
+            var serviceDb = await context.Services.FindAsync(id).ConfigureAwait(false);
             if (serviceDb is null) return new NotFoundObjectResult("Serviço não encontrado");
 
             serviceDb.Name        = service.Name;
@@ -56,7 +57,7 @@ public class ServicesRepo(AgilizApiContext context)
             serviceDb.Duration    = service.Duration;
 
             context.Services.Update(serviceDb);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync().ConfigureAwait(false);
             return new OkObjectResult(serviceDb.ToDto());
         }
         catch (Exception e)
@@ -67,17 +68,17 @@ public class ServicesRepo(AgilizApiContext context)
 
     public async Task<IActionResult> DeleteService(Guid id)
     {
-        var service = await context.Services.FindAsync(id);
+        var service = await context.Services.FindAsync(id).ConfigureAwait(false);
         if (service == null) return new NotFoundObjectResult("Serviço não encontrado");
 
-        var schedulers = await new SchedulerRepo(context).GetSchedulerByService(id);
+        var schedulers = await new SchedulerRepo(context).GetSchedulerByService(id).ConfigureAwait(false);
         if (schedulers.Count > 0)
             foreach (var scheduler in schedulers)
                 context.Scheduler.Remove(scheduler);
 
 
         context.Services.Remove(service);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync().ConfigureAwait(false);
 
         return new OkObjectResult("Serviço deletado com sucesso");
     }

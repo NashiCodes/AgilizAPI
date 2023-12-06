@@ -16,7 +16,8 @@ public class SchedulersController(SchedulerRepo repo) : ControllerBase
     [HttpGet("{id}")]
     public async Task<ActionResult> GetScheduler(Guid id)
     {
-        return await repo.GetScheduler(id) as ActionResult ?? new BadRequestObjectResult("Agendamento não encontrado");
+        return await repo.GetScheduler(id).ConfigureAwait(false) as ActionResult ??
+               new BadRequestObjectResult("Agendamento não encontrado");
     }
 
 
@@ -25,24 +26,24 @@ public class SchedulersController(SchedulerRepo repo) : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> PutScheduler(Guid id, Scheduler scheduler)
     {
-        return await repo.EditScheduler(id, scheduler) as ActionResult ??
+        return await repo.EditScheduler(id, scheduler).ConfigureAwait(false) as ActionResult ??
                new BadRequestObjectResult("Agendamento não encontrado");
     }
 
     // POST: api/Schedulers
     // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
     [HttpPost]
-    public async Task<ActionResult<Scheduler>> PostScheduler(Scheduler scheduler)
+    public async Task<ActionResult> PostScheduler(Scheduler scheduler)
     {
-        await repo.CreateScheduler(scheduler);
-        return CreatedAtAction("GetScheduler", new { id = scheduler.Id }, scheduler);
+        return await repo.CreateScheduler(scheduler).ConfigureAwait(false) as ActionResult ??
+               new BadRequestObjectResult("Agendamento não encontrado");
     }
 
     // DELETE: api/Schedulers/5
     [HttpDelete("{id}")]
     public async Task<ActionResult> DeleteScheduler(Guid id)
     {
-        return await repo.DeleteScheduler(id) as ActionResult ??
+        return await repo.DeleteScheduler(id).ConfigureAwait(false) as ActionResult ??
                new BadRequestObjectResult("Agendamento não encontrado");
     }
 }

@@ -13,7 +13,7 @@ public class SchedulerRepo(AgilizApiContext context)
 {
     public async Task<IActionResult> GetScheduler(Guid id)
     {
-        var scheduler = await context.Scheduler.FindAsync(id);
+        var scheduler = await context.Scheduler.FindAsync(id).ConfigureAwait(false);
 
         return scheduler is null
                    ? new NotFoundObjectResult("Agendamento não encontrado")
@@ -22,20 +22,25 @@ public class SchedulerRepo(AgilizApiContext context)
 
     public async Task<List<Scheduler>> GetSchedulerByService(Guid id)
     {
-        return await context.Scheduler.Where(s => s.IdService == id).ToListAsync();
+        return await context.Scheduler.Where(s => s.IdService == id).ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<List<Scheduler>> GetSchedulerByUser(string id)
     {
-        return await context.Scheduler.Where(s => s.IdUser == id).ToListAsync();
+        return await context.Scheduler.Where(s => s.IdUser == id).ToListAsync().ConfigureAwait(false);
     }
 
     public async Task<IActionResult> CreateScheduler(Scheduler scheduler)
     {
+        var schedulersDb = context.Scheduler.Where(s => s.Date == scheduler.Date && s.IdService == scheduler.IdService);
+
+        if (schedulersDb.Select(s => s.Hour == scheduler.Hour).Any())
+            return new BadRequestObjectResult("Horario já reservado");
+
         try
         {
-            await context.Scheduler.AddAsync(scheduler);
-            await context.SaveChangesAsync();
+            await context.Scheduler.AddAsync(scheduler).ConfigureAwait(false);
+            await context.SaveChangesAsync().ConfigureAwait(false);
             return new OkObjectResult(scheduler);
         }
         catch (Exception e)
@@ -48,7 +53,7 @@ public class SchedulerRepo(AgilizApiContext context)
     {
         try
         {
-            var schedulerDb = await context.Scheduler.FindAsync(id);
+            var schedulerDb = await context.Scheduler.FindAsync(id).ConfigureAwait(false);
             if (schedulerDb is null) return new NotFoundObjectResult("Agendamento não encontrado");
 
             schedulerDb.Date       = scheduler.Date;
@@ -57,7 +62,7 @@ public class SchedulerRepo(AgilizApiContext context)
             schedulerDb.currStatus = scheduler.currStatus;
 
             context.Scheduler.Update(schedulerDb);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync().ConfigureAwait(false);
             return new OkObjectResult(schedulerDb);
         }
         catch (Exception e)
@@ -70,7 +75,7 @@ public class SchedulerRepo(AgilizApiContext context)
     {
         try
         {
-            var scheduler = await context.Scheduler.FindAsync(id);
+            var scheduler = await context.Scheduler.FindAsync(id).ConfigureAwait(false);
 
             if (scheduler is null) return new NotFoundObjectResult("Agendamento não encontrado");
 
@@ -79,7 +84,7 @@ public class SchedulerRepo(AgilizApiContext context)
                 return new BadRequestObjectResult("Não é possivel deletar um agendamento que ainda não foi realizado");
 
             context.Scheduler.Remove(scheduler);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync().ConfigureAwait(false);
             return new OkObjectResult(scheduler);
         }
         catch (Exception e)

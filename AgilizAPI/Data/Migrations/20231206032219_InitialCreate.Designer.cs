@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AgilizAPI.Data.Migrations
 {
     [DbContext(typeof(AgilizApiContext))]
-    [Migration("20231203000139_InitialCreate")]
+    [Migration("20231206032219_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -62,11 +62,9 @@ namespace AgilizAPI.Data.Migrations
 
             modelBuilder.Entity("AgilizAPI.Models.Scheduler", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                        .HasColumnType("uuid");
 
                     b.Property<string>("Date")
                         .IsRequired()
@@ -76,11 +74,12 @@ namespace AgilizAPI.Data.Migrations
                         .IsRequired()
                         .HasColumnType("text");
 
-                    b.Property<int>("IdService")
-                        .HasColumnType("integer");
+                    b.Property<Guid>("IdService")
+                        .HasColumnType("uuid");
 
-                    b.Property<int>("IdUser")
-                        .HasColumnType("integer");
+                    b.Property<string>("IdUser")
+                        .IsRequired()
+                        .HasColumnType("text");
 
                     b.Property<int>("currStatus")
                         .HasColumnType("integer");
