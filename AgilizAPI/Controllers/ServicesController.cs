@@ -8,20 +8,20 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace AgilizAPI.Controllers;
 
-[Route("a|[controller]")]
+[Route("[controller]")]
 [ApiController]
 public class ServicesController(ServicesRepo repo) : ControllerBase
 {
     // GET: api/Services/only/
-    [HttpGet("/only/{id}")]
+    [HttpGet("only/{id}")]
     public async Task<IActionResult> GetServices(Guid id)
     {
         return await repo.GetServiceOnly(id).ConfigureAwait(false);
     }
 
     // GET: api/Services/5
-    [HttpGet("{estabId}")]
-    public async Task<IActionResult> GetServicesEstb(Guid estabId)
+    [HttpGet]
+    public async Task<IActionResult> GetServicesEstb([FromQuery] Guid estabId)
     {
         return await repo.GetServicesEstab(estabId).ConfigureAwait(false);
     }

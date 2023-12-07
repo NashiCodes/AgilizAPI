@@ -46,21 +46,26 @@ public class UsersRepo(AgilizApiContext context) : IUsersRepo
                 return new OkObjectResult(userDb.ToDto(userDb.GenerateToken(), scheduler));
             }
 
-            var existeEstab = await context.Establishment.Select(e => e.Email == user.Email).FirstOrDefaultAsync();
-            if (!existeEstab) return new NotFoundObjectResult("Estabelecimento não encontrado, ou Não cadastrado");
+            var existEstab = await context.Establishment.Where(e => e.Email.Equals(userDb.Email)).ToListAsync();
 
-            var estab = await context.Establishment.Where(e => e.Email == user.Email && e.VerifyPassword(userDb
-                                                                        .Password))
-                            .FirstOrDefaultAsync();
+            if (existEstab.Count == 0)
+                return new NotFoundObjectResult(new {
+                    Message = "Erro ao logar",
+                    Reason  = "Estabelecimento não encontrado, ou não cadastrado",
+                    Token   = userDb.GenerateToken()
+                });
 
-            if (estab != null) return await new EstabRepo(context).loginEstab(estab.Id, userDb.GenerateToken());
+            var estab = existEstab.Find(e => e.VerifyPassword(userDb.Password));
+
+
+            return estab is not null
+                       ? await new EstabRepo(context).LoginEstab(estab.Id, userDb.GenerateToken())
+                       : new OkObjectResult(userDb.ToDto(userDb.GenerateToken(), new List<Scheduler>()));
         }
         catch (Exception e)
         {
             return new BadRequestObjectResult(e.Message);
         }
-
-        return new BadRequestObjectResult("Erro ao logar");
     }
 
     private async Task<IActionResult> RegisterUser(UserRegister requestUser)

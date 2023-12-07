@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace AgilizAPI.Data.Migrations
 {
     [DbContext(typeof(AgilizApiContext))]
-    [Migration("20231206032219_InitialCreate")]
-    partial class InitialCreate
+    [Migration("20231206232044_postgresql.container_migration_973")]
+    partial class postgresqlcontainer_migration_973
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

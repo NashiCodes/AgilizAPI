@@ -26,6 +26,8 @@ public class SchedulersController(SchedulerRepo repo) : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> PutScheduler(Guid id, Scheduler scheduler)
     {
+        if (id != scheduler.Id) return new BadRequestObjectResult("Id do agendamento não confere");
+
         return await repo.EditScheduler(id, scheduler).ConfigureAwait(false) as ActionResult ??
                new BadRequestObjectResult("Agendamento não encontrado");
     }

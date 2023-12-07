@@ -2,6 +2,7 @@
 
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.RegularExpressions;
 using AgilizAPI.Repositories;
 using Newtonsoft.Json.Linq;
 using NuGet.ProjectModel;
@@ -10,7 +11,7 @@ using NuGet.ProjectModel;
 
 namespace AgilizAPI.Models;
 
-public class Establishment
+public partial class Establishment
 {
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Key]
@@ -27,10 +28,13 @@ public class Establishment
 
     public Establishment register(EstabRegister estab, byte[] pass)
     {
+        //elimina qualquer caracter especial
+        var cep = Regex.Replace(estab.Address, @"[^\d]", "");
+
         this.Email         = estab.Email;
         this.Name          = estab.Name;
         this.Category      = estab.Category;
-        this.Address       = estab.Address;
+        this.Address       = cep;
         this.AddressNumber = estab.AddressNumber;
         this.Password      = pass;
 
@@ -59,8 +63,11 @@ public class Establishment
 
     public void loadJson()
     {
-        this.addressJson = EstabRepo.viaCepJson(this.Address).Result;
+        this.addressJson = EstabRepo.ViaCepJson(this.Address).Result;
     }
+
+    [GeneratedRegex("[^0-9a-zA-Z]+")]
+    private static partial Regex MyRegex();
 }
 
 public static class EstablishmentExtensions
@@ -73,6 +80,8 @@ public static class EstablishmentExtensions
     public static EstabDtoRaw ToDtoRaw(this Establishment establishment)
     {
         establishment.loadJson();
+
+        establishment.Address = Regex.Replace(establishment.Address, @"[^\d]", "");
 
         var location = new LocationDto(establishment.Address, establishment.getCity(), establishment.getRua(),
                                        establishment.getBairro(), establishment.AddressNumber);

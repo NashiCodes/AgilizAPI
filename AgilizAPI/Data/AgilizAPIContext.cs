@@ -7,15 +7,12 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AgilizAPI.Data;
 
-public class AgilizApiContext : DbContext
+public class AgilizApiContext(DbContextOptions<AgilizApiContext> options) : DbContext(options)
 {
-    public AgilizApiContext(DbContextOptions<AgilizApiContext> options)
-        : base(options) { }
-
-    public DbSet<User> User { get; set; } = default!;
-    public DbSet<Establishment> Establishment { get; set; } = default!;
-    public DbSet<Service> Services { get; set; } = default!;
-    public DbSet<Scheduler> Scheduler { get; set; } = default!;
+    public DbSet<User> User { get; init; } = default!;
+    public DbSet<Establishment> Establishment { get; init; } = default!;
+    public DbSet<Service> Services { get; init; } = default!;
+    public DbSet<Scheduler> Scheduler { get; init; } = default!;
 
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)

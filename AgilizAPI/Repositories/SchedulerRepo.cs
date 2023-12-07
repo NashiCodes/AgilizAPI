@@ -55,6 +55,8 @@ public class SchedulerRepo(AgilizApiContext context)
         {
             var schedulerDb = await context.Scheduler.FindAsync(id).ConfigureAwait(false);
             if (schedulerDb is null) return new NotFoundObjectResult("Agendamento não encontrado");
+            if (await confereColisao(scheduler).ConfigureAwait(false))
+                return new BadRequestObjectResult("Horario já reservado");
 
             schedulerDb.Date       = scheduler.Date;
             schedulerDb.IdService  = scheduler.IdService;
@@ -91,5 +93,16 @@ public class SchedulerRepo(AgilizApiContext context)
         {
             return new BadRequestObjectResult(e.Message);
         }
+    }
+
+    private async Task<bool> confereColisao(Scheduler scheduler)
+    {
+        var schedulersDb = await context.Scheduler.Where(s => s.Date == scheduler.Date && s.IdService == scheduler
+                                                                  .IdService)
+                               .ToListAsync().ConfigureAwait(false);
+
+        var count = schedulersDb.Select(s => s.Hour == scheduler.Hour).Count();
+
+        return count >= 2;
     }
 }

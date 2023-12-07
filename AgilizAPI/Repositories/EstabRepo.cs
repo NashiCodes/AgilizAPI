@@ -14,36 +14,41 @@ public class EstabRepo(AgilizApiContext context)
 {
     public async Task<ActionResult<IEnumerable<EstabDtoRaw>>> GetAll(string local)
     {
-        var json = await viaCepJson(local).ConfigureAwait(false);
+        string thisCity = local[..3];
 
-        var thisCity = json["localidade"]?.ToString();
+        List<Establishment> select = await context.Establishment.ToListAsync().ConfigureAwait(false);
+        List<EstabDtoRaw> estabs = [];
 
-        var select = await context.Establishment.Select(e => e.ToDtoRaw()).ToListAsync().ConfigureAwait(false);
+        //Cria regex para verificar se o cep do estabelecimento é da mesma cidade do usuário
 
-        var estabs = select.Where(e => thisCity != null && cityComp(e, thisCity)).ToList();
+        foreach (Establishment? estab in select)
+        {
+            string estabCep = estab.Address[..3];
+            if (CityComp(estabCep, thisCity)) estabs.Add(estab.ToDtoRaw());
+        }
 
-        return estabs.Any()
+        return estabs.Count != 0
                    ? new OkObjectResult(estabs)
                    : new NotFoundObjectResult("Estabelecimento não encontrado");
     }
 
-    private static bool cityComp(EstabDtoRaw e, string thisCity)
+    private static bool CityComp(string? eLocal, string thisCity)
     {
-        return e.location.City == thisCity;
+        return eLocal == thisCity;
     }
 
     public async Task<IActionResult> GetEstab(Guid id, string Role)
     {
-        var estab = await context.Establishment.FindAsync(id).ConfigureAwait(false);
+        Establishment? estab = await context.Establishment.FindAsync(id).ConfigureAwait(false);
 
         return estab is null
                    ? new NotFoundObjectResult("Estabelecimento não encontrado")
                    : new OkObjectResult(estab.ToDto(Role));
     }
 
-    public async Task<IActionResult> loginEstab(Guid id, string token)
+    public async Task<IActionResult> LoginEstab(Guid id, string token)
     {
-        var estb = await context.Establishment.FindAsync(id).ConfigureAwait(false);
+        Establishment? estb = await context.Establishment.FindAsync(id).ConfigureAwait(false);
         if (estb is null) return new NotFoundObjectResult("Estabelecimento não encontrado");
 
         return new OkObjectResult(estb.ToDto(token));
@@ -51,10 +56,11 @@ public class EstabRepo(AgilizApiContext context)
 
     public async Task<IActionResult> GetEstabServices(Guid id)
     {
-        var estabServices = await context.Services.Where(s => s.IdEstablishment.Equals(id)).Select(s => s.ToDto())
+        List<ServicesDto> estabServices = await context.Services.Where(s => s.IdEstablishment.Equals(id)).Select(s => s.ToDto())
                                 .ToListAsync().ConfigureAwait(false);
 
-        return estabServices.Any()
+
+        return estabServices.Count != 0
                    ? new OkObjectResult(estabServices)
                    : new NotFoundObjectResult("Estabelecimento não encontrado");
     }
@@ -62,11 +68,16 @@ public class EstabRepo(AgilizApiContext context)
 
     public async Task<IActionResult> CadastrarEstab(EstabRegister estab)
     {
-        var userbDb = await context.User.FindAsync(estab.Email).ConfigureAwait(false);
+        User? userbDb = await context.User.FindAsync(estab.Email).ConfigureAwait(false);
 
         if (userbDb is null) return new NotFoundObjectResult("Email não cadastrado");
 
-        var newEstab = new Establishment().register(estab, userbDb.Password);
+        bool existeEstab =
+            await context.Establishment.Where(e => e.Email == estab.Email).AnyAsync().ConfigureAwait(false);
+
+        if (existeEstab) return new BadRequestObjectResult("Estabelecimento já cadastrado");
+
+        Establishment newEstab = new Establishment().register(estab, userbDb.Password);
 
         await context.Establishment.AddAsync(newEstab).ConfigureAwait(false);
         await context.SaveChangesAsync().ConfigureAwait(false);
@@ -79,7 +90,7 @@ public class EstabRepo(AgilizApiContext context)
     {
         if (id != estab.Id) return new BadRequestResult();
 
-        var estabDb = await context.Establishment.FindAsync(id).ConfigureAwait(false);
+        Establishment? estabDb = await context.Establishment.FindAsync(id).ConfigureAwait(false);
         if (estabDb is null) return new NotFoundResult();
 
         if (!estabDb.VerifyPassword(estab.Password))
@@ -110,21 +121,36 @@ public class EstabRepo(AgilizApiContext context)
         return context.Establishment.Any(e => e.Id == id);
     }
 
-    public static async Task<JObject> viaCepJson(string cep)
+    public static async Task<JObject> ViaCepJson(string cep)
     {
-        var url = $"https://viacep.com.br/ws/{cep}/json/";
+        string url = $"https://viacep.com.br/ws/{cep}/json/";
 
         HttpClient client = new();
-        HttpRequestMessage request = new() {
-            Method     = HttpMethod.Get,
+        HttpRequestMessage request = new()
+        {
+            Method = HttpMethod.Get,
             RequestUri = new Uri(url)
         };
 
-        var response = await client.SendAsync(request).ConfigureAwait(false);
+        HttpResponseMessage response = await client.SendAsync(request).ConfigureAwait(false);
         response.EnsureSuccessStatusCode();
 
-        var json = JObject.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
+        JObject json = JObject.Parse(await response.Content.ReadAsStringAsync().ConfigureAwait(false));
 
         return json;
+    }
+
+    public async Task<IActionResult> DeletarEstab(Guid id, string email)
+    {
+        Establishment? estab = await context.Establishment.FindAsync(id).ConfigureAwait(false);
+
+        if (estab is null) return new NotFoundObjectResult("Estabelecimento não encontrado");
+
+        if (estab.Email != email) return new BadRequestObjectResult("Email incorreto");
+
+        context.Establishment.Remove(estab);
+        await context.SaveChangesAsync().ConfigureAwait(false);
+
+        return new OkObjectResult("Estabelecimento deletado com sucesso");
     }
 }

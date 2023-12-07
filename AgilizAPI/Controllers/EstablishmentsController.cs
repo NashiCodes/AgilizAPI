@@ -23,7 +23,7 @@ public class EstablishmentsController(EstabRepo repo) : ControllerBase
     }
 
     // GET: /Establishments/5
-    [HttpGet("{id}")]
+    [HttpGet]
     public async Task<IActionResult> GetEstablishment([FromQuery] Guid id)
     {
         return await repo.GetEstabServices(id).ConfigureAwait(false);
@@ -32,7 +32,7 @@ public class EstablishmentsController(EstabRepo repo) : ControllerBase
     }
 
     // PUT: /Establishments/5
-    [HttpPut("{id}")]
+    [HttpPut]
     [Authorize(Policy = "Entrepreneur")]
     public async Task<IActionResult> PutEstablishment([FromQuery] Guid id, [FromBody] Establishment establishment)
     {
@@ -49,5 +49,15 @@ public class EstablishmentsController(EstabRepo repo) : ControllerBase
         return await repo.CadastrarEstab(establishment).ConfigureAwait(false);
 
         //cadastra um estabelecimento
+    }
+
+    // DELETE: /Establishments/5
+    [HttpDelete]
+    [Authorize(Policy = "Entrepreneur")]
+    public async Task<IActionResult> DeleteEstablishment([FromQuery] Guid id, [FromQuery] string email)
+    {
+        return await repo.DeletarEstab(id, email).ConfigureAwait(false);
+
+        //deleta um estabelecimento
     }
 }

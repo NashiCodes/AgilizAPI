@@ -6,33 +6,55 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <InvariantGlobalization>true</InvariantGlobalization>
         <UserSecretsId>ad36ba68-b52e-4e66-a568-291d2d875332</UserSecretsId>
+        <ApplicationInsightsResourceId>/subscriptions/8b3bb8a4-3d32-47fe-b403-e74ab448f879/resourceGroups/defaultresourcegroup-cq/providers/microsoft.insights/components/AgilizAPI</ApplicationInsightsResourceId>
+        <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0-beta4"/>
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.8.0"/>
-        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0"/>
+        <PackageReference Include="Azure.Extensions.AspNetCore.Configuration.Secrets" Version="1.0.0" />
+        <PackageReference Include="Azure.Identity" Version="1.10.3" />
+        <PackageReference Include="Microsoft.ApplicationInsights.AspNetCore" Version="2.22.0-beta4" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" Version="8.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Components.QuickGrid.EntityFrameworkAdapter" Version="8.0.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.Common" Version="4.8.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Features" Version="4.8.0" />
+        <PackageReference Include="Microsoft.CodeAnalysis.CSharp.Workspaces" Version="4.8.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0"/>
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.0" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="8.0.0">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0"/>
-        <PackageReference Include="Microsoft.OpenApi.Readers" Version="1.6.11"/>
-        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0"/>
-        <PackageReference Include="Npgsql" Version="8.0.0"/>
-        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0"/>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0"/>
+        <PackageReference Include="Microsoft.Extensions.Options.DataAnnotations" Version="8.0.0" />
+        <PackageReference Include="Microsoft.Identity.Web" Version="2.13.4" />
+        <PackageReference Include="Microsoft.Identity.Web.UI" Version="2.13.4" />
+        <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.19.5" />
+        <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.0" />
+        <PackageReference Include="Npgsql" Version="8.0.0" />
+        <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="8.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Compile Remove="Data\Migrations\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <EmbeddedResource Remove="Data\Migrations\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Content Remove="Data\Migrations\**" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <None Remove="Data\Migrations\**" />
     </ItemGroup>
 
 </Project>

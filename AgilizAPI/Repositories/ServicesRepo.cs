@@ -22,12 +22,13 @@ public class ServicesRepo(AgilizApiContext context)
 
     public async Task<IActionResult> GetServicesEstab(Guid estabId)
     {
+        var estab = await context.Establishment.FindAsync(estabId).ConfigureAwait(false);
+        if (estab is null) return new NotFoundObjectResult("Estabelecimento não encontrado");
+
         var services = await context.Services.Where(s => s.IdEstablishment.Equals(estabId)).ToListAsync()
                            .ConfigureAwait(false);
 
-        return services.Any()
-                   ? new OkObjectResult(services)
-                   : new NotFoundObjectResult("Estabelecimento não encontrado");
+        return new OkObjectResult(services.Select(s => s.ToDto()));
     }
 
     public async Task<IActionResult> CreateService(Service service)

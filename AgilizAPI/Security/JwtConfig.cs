@@ -35,11 +35,8 @@ public static class JwtConfig
     public static IServiceCollection ConfigureClaims(this IServiceCollection Services)
     {
         foreach (var VARIABLE in IdentityData.getRoles())
-            Services.AddAuthorization(options =>
-            {
-                options.AddPolicy(VARIABLE.Key,
-                                  policy => policy.RequireClaim("Role", VARIABLE.Value));
-            });
+            Services.AddAuthorizationBuilder()
+                .AddPolicy(VARIABLE.Key, policy => policy.RequireClaim("Role", VARIABLE.Value));
 
         return Services;
     }
